@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Игровой кабинет</title>
+<style>
+:root{
+ --bg:#090b10;--surface:#11151d;--surface2:#191f2a;--line:#2a313e;
+ --text:#f4f6fa;--muted:#9ba5b5;--accent:#c7f36b;--accent-dark:#8cb936;
+ --good:#8ee6a0;--bad:#ff8585;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:-.015em}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:36px 36px;mask-image:linear-gradient(to bottom,black,transparent 75%);z-index:-1}
+button,input,select{font:inherit}
+button{cursor:pointer;border:1px solid transparent;border-radius:11px;padding:12px 16px;background:var(--accent);color:#14190b;font-weight:800;transition:transform .18s ease,background .18s ease,border-color .18s ease}
+button:hover{transform:translateY(-2px);background:#d8ff8b}
+button:active{transform:translateY(0)}
+button.secondary{background:#202631;border-color:#353d4b;color:var(--text)}
+button.secondary:hover{background:#2a3340}
+button.good{background:#247c4c;color:white}
+button.danger{background:#9f3441;color:white}
+.wrap{width:min(1180px,100%);margin:auto;padding:30px 24px 55px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:42px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.brand{display:flex;gap:14px;align-items:center}
+.logo{width:50px;height:50px;border-radius:15px;background:var(--accent);color:#11170a;display:grid;place-items:center;font-size:27px;box-shadow:none}
+.eyebrow{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:2.8px;font-weight:900}
+.brand h1{font-size:24px;letter-spacing:-1px;margin:4px 0 0;font-weight:850}
+.sub{color:var(--muted);margin:5px 0 0;font-size:13px}
+.hero{position:relative;overflow:hidden;padding:clamp(26px,5vw,56px);border:1px solid #343d49;background:linear-gradient(115deg,#171d25 0%,#10141b 68%,#1a2115 100%);border-radius:24px;margin-bottom:34px;min-height:245px;display:flex;flex-direction:column;justify-content:center}
+.hero:after{content:"PLAY";position:absolute;right:-10px;bottom:-43px;font-size:clamp(90px,18vw,210px);font-weight:1000;letter-spacing:-.1em;line-height:1;color:#ffffff06;pointer-events:none}
+.hero h2{position:relative;z-index:1;font-size:clamp(34px,5.8vw,61px);line-height:1.02;letter-spacing:-.065em;margin:0 0 18px;max-width:720px}
+.hero p{position:relative;z-index:1;color:#b3bdca;max-width:610px;line-height:1.75;margin:0;font-size:15px}
+.section-title{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:36px 0 17px}
+.section-title h3{margin:0;font-size:23px;letter-spacing:-.8px}
+.section-title span{color:var(--muted);font-size:12px}
+.games{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.game-card{position:relative;overflow:hidden;border:1px solid var(--line);background:var(--surface);border-radius:18px;padding:16px;min-height:190px;display:flex;flex-direction:column;align-items:stretch;transition:border-color .2s,transform .2s,background .2s}
+.game-card:hover{border-color:#71834e;background:#151b1f;transform:translateY(-4px)}
+
+.game-card h4{font-size:17px;letter-spacing:-.4px;margin:0 3px 7px;font-weight:800}
+.game-card p{font-size:12px;line-height:1.6;color:var(--muted);margin:0 3px 17px;flex:1}
+.game-card button{width:100%;margin-top:auto;padding:11px 12px}
+.screen{display:none}.screen.active{display:block}
+.panel{border:1px solid var(--line);background:var(--surface);border-radius:20px;padding:clamp(16px,3vw,30px)}
+.game-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.game-head h2{margin:0;font-size:clamp(22px,4vw,32px);letter-spacing:-1px;flex:1}
+.game-head p{width:100%;margin:0;color:var(--muted);line-height:1.6}
+.status{color:var(--muted);margin:14px 0;font-size:13px}
+.center{text-align:center}
+.big-number{font-size:clamp(45px,10vw,76px);font-weight:900;letter-spacing:2px;margin:25px 0;color:var(--accent)}
+.answer-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}
+.answer-row button{flex:1;min-width:100px}
+.feedback{margin-top:14px;font-weight:800;min-height:24px}
+.feedback.good{color:var(--good)}.feedback.bad{color:var(--bad)}
+.input{background:#0b0e13;border:1px solid #394352;color:white;border-radius:10px;padding:13px;width:100%;max-width:420px;outline:none}
+.input:focus,input:focus{border-color:var(--accent)}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(45px,75px));gap:7px;justify-content:center;margin:20px auto}
+.tile{height:65px;background:#252d38;border:1px solid #414b59;border-radius:10px;font-size:22px;color:var(--text)}
+.tile.empty{background:#0c0f14;border:1px dashed #303946}
+.sudoku{display:grid;grid-template-columns:repeat(9,minmax(25px,42px));gap:2px;justify-content:center;margin:20px auto}
+.sudoku input{width:100%;aspect-ratio:1;text-align:center;padding:0;border-radius:3px;background:#0b0e13;color:white;border:1px solid #394352}
+.sudoku input:nth-child(3n){border-right:2px solid #78845d}
+.quiz-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
+.quiz-options button{background:#202732;border:1px solid #343e4b;color:var(--text);text-align:left}
+.quiz-options button:hover{background:#2b3540;border-color:var(--accent)}
+.progress{height:6px;background:#2b323c;border-radius:99px;overflow:hidden;margin:14px 0}
+.progress div{height:100%;background:var(--accent);width:0}
+.million-options button{background:#202732;border:1px solid #343e4b;color:var(--text)}
+.million-options button:hover{border-color:var(--accent)}
+.million-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.million-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:#b8c1cd;font-size:13px}
+.million-prize{font-size:28px;font-weight:900;color:var(--accent)}
+.jeopardy{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:18px 0}
+.jeopardy .cat{background:#242c36;border:1px solid #3a4451;font-size:13px;padding:13px 5px;border-radius:8px;text-align:center;font-weight:800}
+.jeopardy .points{font-size:20px;padding:18px 5px;background:#171d25;border:1px solid #323c49;color:var(--accent);border-radius:8px}
+.jeopardy button:disabled{background:#10141a;color:#626d7b;border-color:#252c35;transform:none}
+.hidden{display:none!important}
+footer{text-align:center;color:#697484;font-size:12px;margin-top:38px;padding-top:20px;border-top:1px solid var(--line)}
+@media(max-width:900px){.games{grid-template-columns:repeat(2,minmax(0,1fr))}.game-card{min-height:190px}}
+@media(max-width:520px){.wrap{padding:18px 13px 35px}.top{margin-bottom:24px}.brand h1{font-size:21px}.hero{padding:24px 20px;min-height:220px;border-radius:18px}.hero p{font-size:13px}.section-title{align-items:start;flex-direction:column;gap:6px}.games{gap:10px}.game-card{padding:12px;min-height:180px;border-radius:14px}.game-card h4{font-size:15px}.game-card p{font-size:11px}.game-card button{font-size:12px;padding:10px 6px}.panel{padding:14px}.game-head h2{font-size:21px}.sudoku{grid-template-columns:repeat(9,minmax(22px,1fr));gap:1px}.sudoku input{font-size:12px}.tile{height:54px}.million-options,.quiz-options{grid-template-columns:1fr}.jeopardy{gap:5px}.jeopardy .cat{font-size:11px;padding:10px 3px}.jeopardy .points{font-size:17px;padding:15px 3px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><div class="brand"><div class="logo">🎮</div><div><div class="eyebrow">единый игровой портал</div><h1>Игровой кабинет</h1><p class="sub">Выбирай игру и начинай играть</p></div></div><button class="secondary" id="homeTop" onclick="goHome()">⌂ Главное меню</button></header>
+<main id="home">
+<section class="hero"><h2>Добро пожаловать!</h2><p>Восемь игр в одном окне: тренируй внимание, проверяй знания, решай головоломки и набирай очки. Выбери карточку ниже — игра откроется здесь же.</p></section>
+<div class="section-title"><h3>Выбери игру</h3><span>8 игр · без установки</span></div>
+<div class="games">
+<div class="game-card"><h4>1. Найди совпадение</h4><p>Сравни два набора символов и найди общий.</p><button onclick="openGame('match')">Играть</button></div>
+<div class="game-card"><h4>2. Красное число</h4><p>Быстрая реакция: нажми на красное число среди остальных.</p><button onclick="openGame('red')">Играть</button></div>
+<div class="game-card"><h4>3. Пятнашки</h4><p>Передвигай плитки и собери числа по порядку.</p><button onclick="openGame('tiles')">Играть</button></div>
+<div class="game-card"><h4>4. Судоку</h4><p>Заполни поле цифрами от 1 до 9 без повторов в строках и блоках.</p><button onclick="openGame('sudoku')">Играть</button></div>
+<div class="game-card"><h4>5. Викторина</h4><p>Ответь на вопросы из разных областей знаний.</p><button onclick="openGame('quiz')">Играть</button></div>
+<div class="game-card"><h4>6. Блиц-опрос</h4><p>Ответь на короткие вопросы как можно быстрее.</p><button onclick="openGame('blitz')">Играть</button></div>
+<div class="game-card"><h4>7. Кто хочет стать миллионером</h4><p>Пройди вопросы по уровням и проверь свои знания.</p><button onclick="openGame('million')">Играть</button></div>
+<div class="game-card"><h4>8. Своя игра</h4><p>Выбирай тему и стоимость вопроса, зарабатывай очки.</p><button onclick="openGame('jeopardy')">Играть</button></div>
+</div></main>
+<section class="screen panel" id="gameScreen"><div class="game-head"><button class="secondary" onclick="goHome()">← Назад</button><h2 id="gameTitle">Игра</h2><p id="gameDesc"></p></div><div id="gameBody"></div></section>
+<footer>Игровой кабинет · HTML, CSS и JavaScript</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);let current='',score=0,round=0,usedJeopardy=new Set(),tileState=[];
+const descriptions={match:'Найди символ, который встречается в обоих наборах.',red:'Найди и нажми на красное число. С каждым раундом будет сложнее.',tiles:'Нажимай на плитку рядом с пустой клеткой, чтобы передвинуть её.',sudoku:'Заполни пустые клетки. В этой версии дано небольшое учебное поле.',quiz:'Выбери правильный вариант ответа.',blitz:'Короткие вопросы — отвечай быстро и набирай очки.',million:'Выбирай ответы и поднимайся по денежной лестнице.',jeopardy:'Выбирай тему и стоимость вопроса. За правильный ответ получаешь очки.'};
+function openGame(id){current=id;$('home').style.display='none';$('gameScreen').classList.add('active');$('gameTitle').textContent=({'match':'Найди совпадение','red':'Красное число','tiles':'Пятнашки','sudoku':'Судоку','quiz':'Викторина','blitz':'Блиц-опрос','million':'Кто хочет стать миллионером','jeopardy':'Своя игра'})[id];$('gameDesc').textContent=descriptions[id];$('gameBody').innerHTML='';({match:initMatch,red:initRed,tiles:initTiles,sudoku:initSudoku,quiz:()=>initQuiz(false),blitz:()=>initQuiz(true),million:initMillion,jeopardy:initJeopardy})[id]();}
+function goHome(){$('gameScreen').classList.remove('active');$('home').style.display='block';}
+function feedback(msg,good){let f=$('feedback');if(f){f.textContent=msg;f.className='feedback '+(good?'good':'bad')}}
+function initMatch(){let symbols=['🍎','🚀','⭐','🎈','🌈','🐱','⚽','🍀','🎵','🔥','🌙','🦋','🍉','🎯','💎','🌻'];let a=[...symbols].sort(()=>Math.random()-.5).slice(0,6),common=a[Math.floor(Math.random()*a.length)],b=[...symbols].filter(x=>x!==common).sort(()=>Math.random()-.5).slice(0,5);b.push(common);b.sort(()=>Math.random()-.5);$('gameBody').innerHTML=`<div class="panel center"><h3>Найди общий символ</h3><p>Набор А</p><div class="big-number" style="font-size:38px">${a.join(' ')}</div><p>Набор Б</p><div class="big-number" style="font-size:38px">${b.join(' ')}</div><div class="answer-row">${b.map(s=>`<button class="secondary" onclick="checkMatch('${s}','${common}')">${s}</button>`).join('')}</div><div id="feedback" class="feedback"></div><button class="secondary" onclick="initMatch()">Следующий раунд</button></div>`}
+function checkMatch(s,c){feedback(s===c?'Правильно! Отличная внимательность.':'Не совсем. Попробуй ещё раз.',s===c)}
+function initRed(){let target=Math.floor(Math.random()*9)+1,nums=Array.from({length:9},()=>Math.floor(Math.random()*9)+1);nums[Math.floor(Math.random()*9)]=target;let redIndex=Math.floor(Math.random()*9);nums[redIndex]=target;$('gameBody').innerHTML=`<div class="panel center"><h3>Нажми на красное число</h3><div class="tiles" style="grid-template-columns:repeat(3, minmax(70px,110px))">${nums.map((n,i)=>`<button class="tile" style="height:85px;color:${i===redIndex?'#ff596f':'#fff'}" onclick="redClick(${i},${redIndex})">${n}</button>`).join('')}</div><div id="feedback" class="feedback"></div><button class="secondary" onclick="initRed()">Новая попытка</button></div>`}
+function redClick(i,r){feedback(i===r?'Верно! Ты нашёл красное число.':'Мимо! Попробуй ещё раз.',i===r)}
+function initTiles(){round=0;tileState=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];for(let i=0;i<150;i++){let z=tileState.indexOf(0),opts=[z-4,z+4];if(z%4)opts.push(z-1);if(z%4!==3)opts.push(z+1);let valid=opts.filter(n=>n>=0&&n<16&&Math.abs(n%4-z%4)+Math.abs(Math.floor(n/4)-Math.floor(z/4))===1);let n=valid[Math.floor(Math.random()*valid.length)];[tileState[z],tileState[n]]=[tileState[n],tileState[z]];}renderTiles()}
+function renderTiles(){ $('gameBody').innerHTML=`<div class="panel center"><p>Ходы: <b id="moves">${round}</b></p><div class="tiles">${tileState.map((n,i)=>`<button class="tile ${n===0?'empty':''}" onclick="moveTile(${i})">${n||''}</button>`).join('')}</div><div id="feedback" class="feedback"></div><button class="secondary" onclick="initTiles()">Перемешать</button></div>`}
+function moveTile(i){let z=tileState.indexOf(0);if(Math.abs(i%4-z%4)+Math.abs(Math.floor(i/4)-Math.floor(z/4))!==1)return;[tileState[i],tileState[z]]=[tileState[z],tileState[i]];round++;let won=tileState.every((n,j)=>n===(j+1)%16);renderTiles();$('moves').textContent=round;if(won)feedback('Победа! Ты собрал пятнашки.',true)}
+function initSudoku(){let puzzle=[5,3,0,0,7,0,0,0,0,6,0,0,1,9,5,0,0,0,0,9,8,0,0,0,0,6,0,8,0,0,0,6,0,0,0,3,4,0,0,8,0,3,0,0,1,7,0,0,0,2,0,0,0,6,0,6,0,0,0,0,2,8,0,0,0,0,4,1,9,0,0,5,0,0,0,0,8,0,0,7,9];$('gameBody').innerHTML=`<div class="panel center"><p>Учебная сетка: часть клеток уже заполнена. Введи цифры в пустые клетки.</p><div class="sudoku">${puzzle.map((v,i)=>`<input id="s${i}" maxlength="1" inputmode="numeric" ${v?`value="${v}" disabled style="background:#253653;font-weight:bold"`:''} />`).join('')}</div><div id="feedback" class="feedback"></div><button onclick="checkSudoku()">Проверить заполнение</button> <button class="secondary" onclick="initSudoku()">Сбросить</button></div>`}
+function checkSudoku(){let vals=Array.from({length:81},(_,i)=>Number($('s'+i).value));let filled=vals.every(v=>v>=1&&v<=9);feedback(filled?'Все клетки заполнены. Проверь, чтобы цифры не повторялись в строках, столбцах и квадратах 3×3.':'Заполни все пустые клетки цифрами от 1 до 9.',filled)}
+const questions=[{q:'Сколько будет 7 × 8?',a:['54','56','64','48'],c:1},{q:'Какая планета известна как Красная планета?',a:['Венера','Марс','Юпитер','Меркурий'],c:1},{q:'Столица Узбекистана?',a:['Самарканд','Бухара','Ташкент','Хива'],c:2},{q:'Сколько сторон у шестиугольника?',a:['5','6','7','8'],c:1},{q:'Какой газ нужен человеку для дыхания?',a:['Кислород','Гелий','Водород','Метан'],c:0},{q:'Сколько минут в одном часе?',a:['30','50','60','100'],c:2},{q:'Как называется замёрзшая вода?',a:['Пар','Лёд','Соль','Туман'],c:1},{q:'Какой океан самый большой?',a:['Индийский','Северный Ледовитый','Атлантический','Тихий'],c:3},{q:'Сколько дней в обычном году?',a:['364','365','366','360'],c:1},{q:'Какое число является простым?',a:['9','15','17','21'],c:2}];
+function initQuiz(blitz){score=0;round=0;quizNext(blitz)}
+function quizNext(blitz){if(round>=questions.length){$('gameBody').innerHTML=`<div class="panel center"><h2>Игра завершена!</h2><div class="big-number">${score} / ${questions.length}</div><button onclick="${blitz?'initQuiz(true)':'initQuiz(false)'}">Играть ещё раз</button></div>`;return}let q=questions[(round*3+(blitz?2:0))%questions.length];$('gameBody').innerHTML=`<div class="panel"><div class="status">Вопрос ${round+1} из ${questions.length} · Очки: ${score}</div><div class="progress"><div style="width:${round/questions.length*100}%"></div></div><h3>${q.q}</h3><div class="quiz-options">${q.a.map((a,i)=>`<button onclick="quizAnswer(${i},${q.c},${blitz})">${String.fromCharCode(65+i)}. ${a}</button>`).join('')}</div><div id="feedback" class="feedback"></div></div>`}
+function quizAnswer(i,c,b){let buttons=document.querySelectorAll('.quiz-options button');buttons.forEach(x=>x.disabled=true);let ok=i===c;if(ok)score++;feedback(ok?'Правильно! +1 очко':'Неверно. Правильный ответ: '+questions[(round*3+(b?2:0))%questions.length].a[c],ok);$('gameBody').insertAdjacentHTML('beforeend','<button style="margin-top:14px" onclick="round++;quizNext('+b+')">Следующий вопрос →</button>')}
+const money=['100','200','500','1 000','5 000','10 000','25 000','50 000','100 000','1 000 000'];
+function initMillion(){score=0;round=0;millionNext()}
+function millionNext(){if(round>=money.length){$('gameBody').innerHTML=`<div class="panel center"><h2>Поздравляем!</h2><div class="million-prize">1 000 000 очков!</div><button onclick="initMillion()">Сыграть снова</button></div>`;return}let q=questions[(round+1)%questions.length];$('gameBody').innerHTML=`<div class="panel"><div class="million-top"><span>Вопрос ${round+1} из 10</span><span class="million-prize">${money[round]} очков</span></div><div class="progress"><div style="width:${round*10}%"></div></div><h3>${q.q}</h3><div class="million-options">${q.a.map((a,i)=>`<button onclick="millionAnswer(${i},${q.c})">${String.fromCharCode(65+i)}: ${a}</button>`).join('')}</div><div id="feedback" class="feedback"></div><button class="secondary" style="margin-top:14px" onclick="initMillion()">Начать заново</button></div>`}
+function millionAnswer(i,c){document.querySelectorAll('.million-options button').forEach(b=>b.disabled=true);if(i===c){feedback('Верно! Ты переходишь на следующий уровень.',true);$('gameBody').insertAdjacentHTML('beforeend','<button style="margin-top:12px" onclick="round++;millionNext()">Дальше →</button>')}else{feedback('Игра окончена. Попробуй ещё раз!',false);$('gameBody').insertAdjacentHTML('beforeend','<button style="margin-top:12px" onclick="initMillion()">Играть снова</button>')}}
+const cats=['Наука','География','Математика'];const jeopardyQs=[{q:'Какая планета ближе всего к Солнцу?',a:'Меркурий',cat:0},{q:'Какой орган перекачивает кровь?',a:'Сердце',cat:0},{q:'Сколько будет 12 × 12?',a:'144',cat:2},{q:'Столица Японии?',a:'Токио',cat:1},{q:'Сколько градусов в прямом угле?',a:'90',cat:2},{q:'Самый большой материк?',a:'Евразия',cat:1},{q:'Как называется наука о живых организмах?',a:'Биология',cat:0},{q:'Сколько будет 100 ÷ 4?',a:'25',cat:2},{q:'Какой океан омывает восток Африки?',a:'Индийский океан',cat:1}];
+function initJeopardy(){usedJeopardy=new Set();renderJeopardy()}
+function renderJeopardy(){let h='<div class="panel"><div class="status">Выбери клетку. Введи ответ и нажми «Проверить».</div><div class="jeopardy">';cats.forEach((c,ci)=>{h+=`<div class="cat">${c}</div>`});[100,200,300].forEach((p,ri)=>cats.forEach((c,ci)=>{let idx=ri*3+ci;h+=`<button class="points" ${usedJeopardy.has(idx)?'disabled':''} onclick="jeopardyQuestion(${idx},${p})">${usedJeopardy.has(idx)?'✓':p}</button>`}));h+='</div><div id="jeopardyQ"></div><div class="status" id="jscore">Очки: '+score+'</div></div>';$('gameBody').innerHTML=h}
+function jeopardyQuestion(idx,p){let q=jeopardyQs[idx];$('jeopardyQ').innerHTML=`<h3>${q.q}</h3><input class="input" id="janswer" placeholder="Твой ответ"><button onclick="checkJeopardy(${idx},${p})">Проверить</button><div id="feedback" class="feedback"></div>`}
+function checkJeopardy(idx,p){let answer=$('janswer').value.trim().toLowerCase(),correct=jeopardyQs[idx].a.toLowerCase();usedJeopardy.add(idx);let ok=answer===correct;if(ok)score+=p;feedback(ok?`Верно! +${p} очков.`:`Правильный ответ: ${jeopardyQs[idx].a}`,ok);$('jscore').textContent='Очки: '+score;setTimeout(renderJeopardy,1300)}
+</script>
+</body>
+</html>
